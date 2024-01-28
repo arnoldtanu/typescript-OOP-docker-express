@@ -31,7 +31,7 @@ docker compose up
 ```
 
 ##### 6. Run unit test manually
-- run command inside terminal / cmd:
+- open new terminal and run:
 ```
 docker exec -it orgchart sh
 ```
