@@ -43,9 +43,9 @@ class OrgchartController {
   addEmployee(req: Request, res: Response): void {
     try {
       const value = this.createNewEmployeeInput(req);
-      const result = this.orgchart.addEmployee(value);
+      this.orgchart.addEmployee(value);
       res.status(200);
-      res.json(this.createSuccessResponse(result));
+      res.json(this.createSuccessResponse(value));
     } catch (error: any) {
       let errorCode = 500;
       if (error instanceof UserVisibleError) {
