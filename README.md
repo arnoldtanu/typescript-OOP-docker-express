@@ -32,9 +32,12 @@ docker compose up
 
 ##### 6. Run unit test manually
 - run command inside terminal / cmd:
-
 ```
 docker exec -it orgchart sh
+```
+- followed with this code:
+```
+npm test
 ```
 
 ## Build With
