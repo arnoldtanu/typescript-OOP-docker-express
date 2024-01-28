@@ -197,7 +197,14 @@ class OrgChart {
         });
       }
       this.updateConnectionEmployeeAndManager(manager, employee, Conn.connect);
-      this.incrementDecrementManagersDirectReportCount(manager, employee.totalDirectReports + 1, IncDec.increment);
+      try {
+        this.incrementDecrementManagersDirectReportCount(manager, employee.totalDirectReports + 1, IncDec.increment);
+      } catch (error) {
+        if (error instanceof UserVisibleError) {
+          this.updateConnectionEmployeeAndManager(manager, employee, Conn.disconnect);
+          throw error;
+        }
+      }
     } else {
       this.registerEmployeeWithoutManagerToHashmap(employee);
     }
@@ -247,12 +254,21 @@ class OrgChart {
    * increase/decrease the total number of direct reports of a manager to his/her supervisor
    * @param manager the manager object that will
    * @param numberDirectReport object manager whose the number of direct reports will be increased/decreased
-   * @param increment number of how much the value will increase/decrease
+   * @param incdec number of how much the value will increase/decrease
    */
-  private incrementDecrementManagersDirectReportCount(manager:Employee, numberDirectReport:number, increment : IncDec) {
-    if (increment === IncDec.increment) manager.totalDirectReports += numberDirectReport;
-    else manager.totalDirectReports -= numberDirectReport;
-    if (manager.manager !== null) this.incrementDecrementManagersDirectReportCount(manager.manager, numberDirectReport, increment);
+  private incrementDecrementManagersDirectReportCount(manager:Employee, numberDirectReport:number, incdec : IncDec, incrementHistory : Map<TID, Employee> = new Map()) {
+    if (incdec === IncDec.increment) {
+      //if the organizational structure form a circle pattern, cancel the increment recursive, and revert back
+      if (incrementHistory.has(manager.id)) {
+        incrementHistory.forEach((value) => {
+          value.totalDirectReports -= numberDirectReport;
+        });
+        throw new UserVisibleError('organizational structure should not form a circle');
+      }
+      manager.totalDirectReports += numberDirectReport;
+      incrementHistory.set(manager.id, manager);
+    } else manager.totalDirectReports -= numberDirectReport;
+    if (manager.manager !== null) this.incrementDecrementManagersDirectReportCount(manager.manager, numberDirectReport, incdec, incrementHistory);
   }
 
   /**
