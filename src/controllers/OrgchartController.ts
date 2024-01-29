@@ -72,6 +72,15 @@ class OrgchartController {
     }
   }
 
+  resetChart(req: Request, res: Response): void {
+    try {
+      const result = this.orgchart.resetChart();
+      res.status(200).json(this.createSuccessResponseObject(result));
+    } catch (error: any) {
+      this.handleError(error, res);
+    }
+  }
+
   /**
    * Check input & normalize request data for add employee
    * @param data request data
