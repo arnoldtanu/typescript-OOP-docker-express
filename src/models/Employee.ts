@@ -9,7 +9,7 @@ export type TInputManager = number | null;
 export interface IEmployee {
   id : number;
   name : string;
-  manager? : TInputManager;
+  managerId? : TInputManager;
   directReports? : TDirectReports;
   totalDirectReports? : TTotalDirectReports;
 }

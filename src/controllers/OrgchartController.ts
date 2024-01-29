@@ -13,27 +13,27 @@ class OrgchartController {
   private createNewEmployeeInputObject(data:any):IEmployee {
     const id = data.id;
     const name = data.name;
-    const manager = Number(data.manager) ?? null;
+    const managerId = Number(data.managerId) ?? null;
     if (!id || typeof id !== 'number') throw new UserVisibleError('Employee ID is required (id)');
     if (!name) throw new UserVisibleError('Employee name is required (name)');
     return {
       id: id,
       name: name,
-      manager: manager,
+      managerId: managerId,
     };
   }
 
   private createUpdateEmployeeInputObject(data:any):IEmployee {
     const id = data.id;
     let name = data.name || "";
-    const manager = data.manager;
+    const managerId = data.managerId;
     if (!id || typeof id !== 'number') throw new UserVisibleError('Employee ID is required (id)');
     const result = {
       id: id,
       name: name,
-      manager: manager,
+      managerId: managerId,
     };
-    if (!manager) delete(result.manager);
+    if (!managerId) delete(result.managerId);
     return result;
   }
 
@@ -41,6 +41,7 @@ class OrgchartController {
     return {
       success: true,
       data: data,
+      warning: this.orgchart.checkChartAnomalies(),
     };
   }
 
@@ -83,7 +84,7 @@ class OrgchartController {
 
   findEmployees(req: Request, res: Response): void {
     try {
-      const data = req.params.id;
+      const data = req.params.name;
       if (!data || !(typeof data === 'string') || data.length < 0) throw new UserVisibleError('The name of the employee to be searched is required (name)');
       const result = this.orgchart.findEmployeeByName(data);
       if (result.length > 0) {

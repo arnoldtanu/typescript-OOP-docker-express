@@ -6,27 +6,27 @@ const employees : IEmployee[] = [
   { //0
     id: 1,
     name: 'adam',
-    manager: 99,
+    managerId: 99,
   },
   { //1
     id: 2,
     name: 'eve',
-    manager: 99,
+    managerId: 99,
   },
   { //2
     id: 99,
     name: 'lancelot',
-    manager: null,
+    managerId: null,
   },
   { //3
     id: 100,
     name: 'arthur',
-    manager: null,
+    managerId: null,
   },
   { //4
     id: 4,
     name: 'adam',
-    manager: 2,
+    managerId: 2,
   },
 ];
 
@@ -98,7 +98,7 @@ describe('OrgChart', () => {
 
   it('should assign arthur as lancelot\'s manager', () => {
     let editedLancelot = JSON.parse(JSON.stringify(employees[2]));
-    editedLancelot.manager = employees[3].id;
+    editedLancelot.managerId = employees[3].id;
     orgChart.updateEmployee(editedLancelot);
     const { idHashmap, nameHashmap, employeeWithoutManager } = getOrgChartValue();
 
@@ -122,7 +122,7 @@ describe('OrgChart', () => {
   it('should throw an error because the organizational structural form a circle', () => {
     function createCircleOrganizationalStructure() {
       let editedArthur = JSON.parse(JSON.stringify(employees[3]));
-      editedArthur.manager = employees[4].id;
+      editedArthur.managerId = employees[4].id;
       orgChart.updateEmployee(editedArthur);
     }
     const { idHashmap } = getOrgChartValue();
@@ -150,6 +150,59 @@ describe('OrgChart', () => {
     expect(orgChart.findEmployeeByName('adam')).toHaveLength(2);
     expect(idHashmap.get(employees[2].id)?.totalDirectReports).toBe(3);
     expect(idHashmap.get(employees[3].id)?.totalDirectReports).toBe(0);
+  });
+
+  it('should change employee\'s manager and name', () => {
+    let editedLancelot = JSON.parse(JSON.stringify(employees[2]));
+    editedLancelot.managerId = employees[3].id;
+    editedLancelot.name = "lynette";
+    orgChart.updateEmployee(editedLancelot);
+    const { idHashmap, nameHashmap, employeeWithoutManager } = getOrgChartValue();
+
+    expect(idHashmap.size).toBe(5);
+    expect(nameHashmap.size).toBe(4); //adam, eve, lynette, arthur
+    expect(orgChart.findEmployeeByName('lynette')).toHaveLength(1);
+    expect(employeeWithoutManager.size).toBe(1); //arthur
+    expect(idHashmap.get(employees[2].id)?.totalDirectReports).toBe(3); //adam(2), eve
+  });
+
+  it('should promote an employee to upper manager', () => {
+    let editedEve = JSON.parse(JSON.stringify(employees[1]));
+    editedEve.managerId = employees[3].id;
+    orgChart.updateEmployee(editedEve);
+    const { idHashmap, nameHashmap, employeeWithoutManager } = getOrgChartValue();
+
+    expect(idHashmap.size).toBe(5);
+    expect(nameHashmap.size).toBe(4); //adam, eve, lynette, arthur
+    expect(employeeWithoutManager.size).toBe(1); //arthur
+    expect(idHashmap.get(employees[2].id)?.totalDirectReports).toBe(1); //only adam
+    expect(idHashmap.get(employees[3].id)?.totalDirectReports).toBe(4); //everyone except arthur
+    expect(idHashmap.get(employees[1].id)?.totalDirectReports).toBe(1); //only adam
+  });
+
+  it('should promote an employee to uppermost manager', () => {
+    let editedEve = JSON.parse(JSON.stringify(employees[1]));
+    editedEve.managerId = null;
+    orgChart.updateEmployee(editedEve);
+    const { idHashmap, nameHashmap, employeeWithoutManager } = getOrgChartValue();
+    orgChart.printChartIntoConsole();
+
+    expect(idHashmap.size).toBe(5);
+    expect(nameHashmap.size).toBe(4); //adam, eve, lynette, arthur
+    expect(employeeWithoutManager.size).toBe(2); //arthur & eve
+    expect(idHashmap.get(employees[2].id)?.totalDirectReports).toBe(1); //only adam
+    expect(idHashmap.get(employees[3].id)?.totalDirectReports).toBe(2); //lynette and adam
+    expect(idHashmap.get(employees[1].id)?.totalDirectReports).toBe(1); //only adam
+  });
+
+  it('should be able to remove employee that have manager and direct reports', () => {
+    orgChart.deleteEmployee(employees[2].id);
+    const { idHashmap, nameHashmap, employeeWithoutManager } = getOrgChartValue();
+    orgChart.printChartIntoConsole();
+
+    expect(idHashmap.size).toBe(4);
+    expect(nameHashmap.size).toBe(3); //adam, eve, arthur
+    expect(employeeWithoutManager.size).toBe(2); //arthur, eve
   });
 
 });

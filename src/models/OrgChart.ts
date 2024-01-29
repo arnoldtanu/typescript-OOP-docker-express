@@ -55,7 +55,7 @@ class OrgChart {
    * @returns new employee object
    */
   addEmployee(data:IEmployee) : Employee {
-    if (!data.manager) data.manager = null;
+    if (!data.managerId) data.managerId = null;
 
     const isEmployeeIdExist = this.idHashmap.get(data.id);
     if (isEmployeeIdExist) {
@@ -69,7 +69,7 @@ class OrgChart {
     const newEmployee = new Employee(data);
     this.registerEmployeeIdToHashmap(newEmployee);
     if (newEmployee.name !== '') this.registerEmployeeNameToHashmap(newEmployee);
-    this.connectEmployeeToManager(newEmployee, data.manager);
+    this.connectEmployeeToManager(newEmployee, data.managerId);
     return newEmployee;
   }
 
@@ -116,9 +116,9 @@ class OrgChart {
         employee.name = data.name;
         this.registerEmployeeNameToHashmap(employee);
       }
-      if (data.manager && this.checkIfChangingManager(data, employee)) {
+      if (typeof data.managerId !== 'undefined' && this.checkIfChangingManager(data, employee)) {
         this.disconnectEmployeeFromManager(employee);
-        this.connectEmployeeToManager(employee, data.manager);
+        this.connectEmployeeToManager(employee, data.managerId);
       }
       return employee;
     }
@@ -142,6 +142,9 @@ class OrgChart {
       this.disconnectEmployeeFromManager(employee);
       this.unregisterEmployeeIdFromHashmap(employee);
       this.unregisterEmployeeNameFromHashmap(employee);
+      if (employee.manager === null) this.employeeWithoutManager.delete(employee.id);
+    } else {
+      throw new UserVisibleError('Cannot delete unregistered employee ID');
     }
   }
 
@@ -277,10 +280,10 @@ class OrgChart {
    * @returns array of the name of all managers of an employee
    */
   private getEmployeeManagers(manager: Employee) : TName[] {
-    if (manager.manager && typeof manager.manager !== 'number') {
+    if (manager.manager instanceof Employee) {
       return [manager.name, ...(this.getEmployeeManagers(manager.manager))];
     }
-    return [];
+    return [manager.name];
   }
 
   /**
@@ -290,8 +293,8 @@ class OrgChart {
    * @returns boolean if manager of an employee changed
    */
   private checkIfChangingManager(newData:IEmployee, currentData:Employee) : boolean {
-    if (newData.manager) {
-      const newManagerId = newData.manager;
+    if (typeof newData.managerId !== 'undefined') {
+      const newManagerId = newData.managerId;
       const currentManagerId = this.getManagerId(currentData.manager);
       return newManagerId !== currentManagerId;
     }
@@ -308,8 +311,20 @@ class OrgChart {
     return manager;
   }
 
-  private checkChartAnomali() {
-    //TODO: check chart anomaly, create an array to hold those anomalies, and return it
+  /**
+   * check if there is more than one employee who does not have a manager, and check if there is an employee who does not have a manager and has no direct reports.
+   * @returns array of anomalies
+   */
+  checkChartAnomalies() : string[] {
+    const result = [];
+    if (this.employeeWithoutManager.size > 1) result.push(`${this.employeeWithoutManager.size} employee(s) don't have manager.`);
+    this.employeeWithoutManager.forEach((key) => {
+      const employee = this.idHashmap.get(key);
+      if (employee && employee.manager === null && employee.directReports.length === 0) {
+        result.push(`${employee.name} (id:${employee.id}) don't have manager and direct reports.`);
+      }
+    });
+    return result;
   }
 
 }
