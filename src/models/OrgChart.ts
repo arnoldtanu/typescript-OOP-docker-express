@@ -111,7 +111,7 @@ class OrgChart {
   updateEmployee(data:IEmployee) : Employee {
     const employee = this.idHashmap.get(data.id);
     if (employee) {
-      if (employee.name !== data.name) {
+      if (data.name !== '' && employee.name !== data.name) {
         this.unregisterEmployeeNameFromHashmap(employee);
         employee.name = data.name;
         this.registerEmployeeNameToHashmap(employee);
@@ -306,6 +306,10 @@ class OrgChart {
   private getManagerId(manager:TManager) : number|null {
     if (manager instanceof Employee) return manager.id;
     return manager;
+  }
+
+  private checkChartAnomali() {
+    //TODO: check chart anomaly, create an array to hold those anomalies, and return it
   }
 
 }

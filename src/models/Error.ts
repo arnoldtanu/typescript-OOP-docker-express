@@ -1,7 +1,9 @@
 export class UserVisibleError extends Error {
-  constructor(message: string) {
+  errorCode:number|null;
+  constructor(message: string, errorCode : number|null = null) {
     super(message);
     this.name = this.constructor.name;
+    this.errorCode = errorCode;
   }
 }
 
