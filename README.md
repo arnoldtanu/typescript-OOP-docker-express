@@ -29,6 +29,7 @@ docker compose up
     "manager":2
 }
 ```
+- more detailed documentation can be accessed through: https://documenter.getpostman.com/view/2420243/2s9YysC1f4
 
 ##### 6. Run unit test manually
 - open new terminal and run:

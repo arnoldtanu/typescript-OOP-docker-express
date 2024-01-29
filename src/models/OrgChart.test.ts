@@ -185,7 +185,6 @@ describe('OrgChart', () => {
     editedEve.managerId = null;
     orgChart.updateEmployee(editedEve);
     const { idHashmap, nameHashmap, employeeWithoutManager } = getOrgChartValue();
-    orgChart.printChartIntoConsole();
 
     expect(idHashmap.size).toBe(5);
     expect(nameHashmap.size).toBe(4); //adam, eve, lynette, arthur
@@ -198,7 +197,6 @@ describe('OrgChart', () => {
   it('should be able to remove employee that have manager and direct reports', () => {
     orgChart.deleteEmployee(employees[2].id);
     const { idHashmap, nameHashmap, employeeWithoutManager } = getOrgChartValue();
-    orgChart.printChartIntoConsole();
 
     expect(idHashmap.size).toBe(4);
     expect(nameHashmap.size).toBe(3); //adam, eve, arthur

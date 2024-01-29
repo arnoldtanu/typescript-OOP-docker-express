@@ -8,5 +8,6 @@ router.post('/add', json(), (req, res) => orgchartController.addEmployees(req, r
 router.get('/find/:name', json(), (req, res) => orgchartController.findEmployees(req, res));
 router.post('/update', json(), (req, res) => orgchartController.updateEmployee(req, res));
 router.post('/delete', json(), (req, res) => orgchartController.deleteEmployee(req, res));
+router.get('/export', json(), (req, res) => orgchartController.exportChart(req, res));
 
 export default router;

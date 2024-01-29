@@ -148,9 +148,37 @@ class OrgChart {
     }
   }
 
-  // private increaseMaxId() {
-  //   this.maxId++;
-  // }
+  /**
+   * check if there is more than one employee who does not have a manager, and check if there is an employee who does not have a manager and has no direct reports.
+   * @returns array of anomalies
+   */
+  checkChartAnomalies() : string[] {
+    const result = [];
+    if (this.employeeWithoutManager.size > 1) result.push(`${this.employeeWithoutManager.size} employee(s) don't have manager.`);
+    this.employeeWithoutManager.forEach((key) => {
+      const employee = this.idHashmap.get(key);
+      if (employee && employee.manager === null && employee.directReports.length === 0) {
+        result.push(`${employee.name} (id:${employee.id}) don't have manager and direct reports.`);
+      }
+    });
+    return result;
+  }
+
+  exportChart() : IEmployee[] {
+    const result : IEmployee[] = [];
+    this.idHashmap.forEach((value) => {
+      result.push(this.convertChartToObject(value));
+    });
+    return result;
+  }
+
+  private convertChartToObject(data:Employee) : IEmployee {
+    return {
+      id: data.id,
+      name: data.name,
+      managerId: data.manager instanceof Employee ? data.manager.id : null,
+    };
+  }
 
   private registerEmployeeIdToHashmap(employee: Employee) {
     this.idHashmap.set(employee.id, employee);
@@ -310,23 +338,6 @@ class OrgChart {
     if (manager instanceof Employee) return manager.id;
     return manager;
   }
-
-  /**
-   * check if there is more than one employee who does not have a manager, and check if there is an employee who does not have a manager and has no direct reports.
-   * @returns array of anomalies
-   */
-  checkChartAnomalies() : string[] {
-    const result = [];
-    if (this.employeeWithoutManager.size > 1) result.push(`${this.employeeWithoutManager.size} employee(s) don't have manager.`);
-    this.employeeWithoutManager.forEach((key) => {
-      const employee = this.idHashmap.get(key);
-      if (employee && employee.manager === null && employee.directReports.length === 0) {
-        result.push(`${employee.name} (id:${employee.id}) don't have manager and direct reports.`);
-      }
-    });
-    return result;
-  }
-
 }
 
 export default OrgChart;
