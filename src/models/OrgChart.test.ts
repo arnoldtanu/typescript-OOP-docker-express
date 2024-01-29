@@ -203,4 +203,19 @@ describe('OrgChart', () => {
     expect(employeeWithoutManager.size).toBe(2); //arthur, eve
   });
 
+  it('should add an employee who don\'t have a manager and direct report, and return a warning about it', () => {
+    orgChart.addEmployee({
+      id: 333,
+      name: "diluc",
+      managerId: null,
+    });
+    const warning = orgChart.checkChartAnomalies();
+    const { idHashmap, nameHashmap, employeeWithoutManager } = getOrgChartValue();
+
+    expect(idHashmap.size).toBe(5);
+    expect(nameHashmap.size).toBe(4); //adam, eve, arthur, diluc
+    expect(employeeWithoutManager.size).toBe(3); //arthur, eve, diluc
+    expect(warning.length).toBeGreaterThanOrEqual(1);
+  });
+
 });
