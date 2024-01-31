@@ -25,7 +25,7 @@ const employees : IEmployee[] = [
   },
   { //4
     id: 4,
-    name: 'adam',
+    name: 'ADAM',
     managerId: 2,
   },
 ];
@@ -219,7 +219,7 @@ describe('OrgChart', () => {
   });
 
   it('should put existing employee into lowest tree, and count uppermost manager\'s direct and indirect reports', () => {
-    orgChart.updateEmployee({ id: 333, name: 'diluc', managerId: employees[3].id });
+    orgChart.updateEmployee({ id: 333, name: 'DiLuC', managerId: employees[3].id });
     const { idHashmap, nameHashmap, employeeWithoutManager } = getOrgChartValue();
     const uppermostManager = idHashmap.get(employees[3].id);
 
@@ -227,6 +227,15 @@ describe('OrgChart', () => {
     expect(nameHashmap.size).toBe(4); //adam, eve, arthur, diluc
     expect(employeeWithoutManager.size).toBe(2); //arthur, eve
     expect(uppermostManager?.totalDirectReports).toBe(2); //adam & diluc
+  });
+
+  it('should able to search in case insensitive', () => {
+    const { idHashmap, nameHashmap, employeeWithoutManager } = getOrgChartValue();
+
+    expect(idHashmap.size).toBe(5);
+    expect(nameHashmap.size).toBe(4); //adam, eve, arthur, diluc
+    expect(orgChart.findEmployeeByName('Diluc')).toHaveLength(1);
+    expect(employeeWithoutManager.size).toBe(2); //arthur, eve
   });
 
 });

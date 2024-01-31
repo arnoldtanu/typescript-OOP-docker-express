@@ -56,6 +56,7 @@ class OrgChart {
    */
   addEmployee(data:IEmployee) : Employee {
     if (!data.managerId) data.managerId = null;
+    if (data.name) data.name = data.name.toLowerCase();
 
     const isEmployeeIdExist = this.idHashmap.get(data.id);
     if (isEmployeeIdExist) {
@@ -89,6 +90,7 @@ class OrgChart {
    * @returns array of employee's detail
    */
   findEmployeeByName(name: TName) : IEmployeeDetail[] {
+    name = name.toLowerCase();
     const employeesWithSameName = this.nameHashmap.get(name);
     if (employeesWithSameName) {
       return employeesWithSameName.map((employee) => {
@@ -109,6 +111,7 @@ class OrgChart {
    * @param data employees to update
    */
   updateEmployee(data:IEmployee) : Employee {
+    if (data.name) data.name = data.name.toLowerCase();
     const employee = this.idHashmap.get(data.id);
     if (employee) {
       if (data.name !== '' && employee.name !== data.name) {
